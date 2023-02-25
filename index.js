@@ -1,11 +1,6 @@
 const express = require('express');
 const app = express();
 
-app.use(express.json());
-
-const cors = require('cors')
-app.use(cors())
-
 const requestLogger = (req, res, next) => {
   console.log('Method:', req.method)
   console.log('Path:  ', req.path)
@@ -15,6 +10,11 @@ const requestLogger = (req, res, next) => {
 }
 
 app.use(requestLogger)
+app.use(express.static('build'))
+app.use(express.json());
+
+const cors = require('cors')
+app.use(cors())
 
 let notes = [
     {
@@ -47,6 +47,37 @@ app.delete('/api/notes/:id', (request, response) => {
     const id = Number(request.params.id)
     notes = notes.filter( n => n.id !== id )
     response.status(204).end()
+})
+
+app.put('/api/notes/:id', (request, response) => {
+  const id = Number(request.params.id)
+
+  if (id === undefined) {
+    return (response.status(404).send({ error: 'Resource Identifier not valid' }))
+  }
+
+  const note = notes.find( n => n.id === id )
+
+  if (note === undefined) {
+    return (response.status(404).send({ error: 'Resource not found' }))
+  }
+
+  const updatedNotes = notes.filter( n => n.id !== id )
+
+  // receive parsed json data - using express.json() parser
+  const body = request.body
+
+  const newNote = {
+    content: body.content,
+    important: body.important || false,
+    date: new Date(),
+    id: id
+  }
+
+  updatedNotes.push(newNote)
+
+  response.json(newNote)
+
 })
 
 app.get('/api/notes/:id', (request, response) => {
