@@ -9,9 +9,11 @@ const requestLogger = (req, res, next) => {
   next()
 }
 
+// order of middleware use is very Importsnt !
+app.use(express.json());
 app.use(requestLogger)
 app.use(express.static('build'))
-app.use(express.json());
+
 
 const cors = require('cors')
 app.use(cors())
