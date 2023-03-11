@@ -1,5 +1,39 @@
+require('dotenv').config()
+
 const express = require('express');
+
+const Note = require('./models/note')
+
 const app = express();
+
+
+// const password = process.argv[2]
+
+// DO NOT SAVE YOUR PASSWORD TO GITHUB !!
+// const url = `mongodb+srv://fullstackdev:${password}@fullstackdev.tzwqcse.mongodb.net/noteApp?retryWrites=true&w=majority`
+
+// mongoose.set('strictQuery', false)
+// mongoose.connect(url)
+
+/* 
+const noteSchema = new mongoose.Schema({
+    content: String,
+    date: Date,
+    important: Boolean
+})
+*/
+
+/*
+noteSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+*/
+
+// const Note = mongoose.model('Note', noteSchema)
 
 const requestLogger = (req, res, next) => {
   console.log('Method:', req.method)
@@ -42,7 +76,9 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => { 
+  Note.find({}).then(notes => {
     response.json(notes)
+  })
 })
 
 app.delete('/api/notes/:id', (request, response) => {
@@ -125,7 +161,7 @@ const unknownEndpoint = (request, response) => {
 }
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
